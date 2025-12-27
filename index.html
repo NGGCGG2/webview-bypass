@@ -2,132 +2,241 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>WebView Escape Console</title>
+<title>WebView Escape Console — FULL</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   body { font-family: sans-serif; padding: 20px; }
   h2 { margin-top: 0; }
+  h3 { margin-top: 40px; }
   button {
     width: 100%;
     font-size: 22px;
     padding: 18px;
-    margin: 12px 0;
+    margin: 10px 0;
   }
-  .warn { color: #b00; font-weight: bold; }
+  .tested { opacity: 0.6; }
+  .new { border: 2px solid #d00; }
+  .note { color: #666; font-size: 16px; }
 </style>
 </head>
 <body>
 
-<h2>🧪 WebView Escape Console</h2>
-<p class="warn">所有操作都需要你<strong>手动点击</strong>。点一个，等结果，再点下一个。</p>
+<h2>🧪 WebView Escape Console · FULL SET</h2>
+<p class="note">
+一次只点一个。点完等 3–5 秒。<br>
+任何“卡一下 / 黑一下 / 不同于隐私政策”的反应都很重要。
+</p>
 
-<!-- 1. File Picker -->
-<button onclick="
+<!-- ================= 已测试区域 ================= -->
+
+<h3>✅ 已测试（结果已知）</h3>
+
+<button class="tested" onclick="
 try {
-  var i = document.createElement('input');
-  i.type = 'file';
+  var i=document.createElement('input');
+  i.type='file';
   i.click();
-} catch(e) { alert(e); }
+} catch(e){}
 ">
-📂 File Picker (DocumentsUI)
+📂 File Picker（无反应）
 </button>
 
-<!-- 2. Accessibility Settings -->
-<button onclick="
-location.href='intent:#Intent;action=android.settings.ACCESSIBILITY_SETTINGS;end';
+<button class="tested" onclick="
+try{window.print();}catch(e){}
 ">
-♿ Accessibility Settings
+🖨️ window.print()（无反应）
 </button>
 
-<!-- 3. System Settings -->
-<button onclick="
-location.href='intent:#Intent;component=com.android.settings/.Settings;end';
-">
-⚙️ System Settings
-</button>
-
-<!-- 4. App Details (Settings side door) -->
-<button onclick="
-location.href='intent:#Intent;action=android.settings.APPLICATION_DETAILS_SETTINGS;data=package:com.android.systemui;end';
-">
-📦 App Details (SystemUI)
-</button>
-
-<!-- 5. window.print -->
-<button onclick="
-try { window.print(); } catch(e) { alert(e); }
-">
-🖨️ window.print()
-</button>
-
-<!-- 6. target=_blank -->
-<button onclick="
+<button class="tested" onclick="
 var a=document.createElement('a');
 a.href='https://google.com';
 a.target='_blank';
 a.click();
 ">
-🆕 Open new WebView (_blank)
+🆕 Open new WebView (_blank → google)
 </button>
 
-<!-- 7. about:blank + write -->
-<button onclick="
+<button class="tested" onclick="
 location.href='about:blank';
 setTimeout(function(){
-  try {
-    document.write('<h1>about:blank alive</h1>');
-  } catch(e){ alert(e); }
+  try{document.write('<h1></h1>');}catch(e){}
 },100);
 ">
-🧻 about:blank + document.write
+🧻 about:blank + document.write（白屏）
 </button>
 
-<!-- 8. blob: URL -->
-<button onclick="
-try {
-  var b=new Blob(
-    ['<h1>blob page</h1><button onclick=\"alert(1)\">OK</button>'],
-    {type:'text/html'}
-  );
-  location.href=URL.createObjectURL(b);
-} catch(e){ alert(e); }
-">
-🧬 blob: URL
-</button>
-
-<!-- 9. mailto -->
-<button onclick="
+<button class="tested" onclick="
 location.href='mailto:test@example.com';
 ">
-✉️ mailto:
+✉️ mailto:（弹回）
 </button>
 
-<!-- 10. tel -->
-<button onclick="
+<button class="tested" onclick="
 location.href='tel:123';
 ">
-📞 tel:
+📞 tel:（弹回）
 </button>
 
-<!-- 11. Permission prompt (geolocation) -->
-<button onclick="
-try {
-  navigator.geolocation.getCurrentPosition(
-    ()=>alert('geo ok'),
-    ()=>alert('geo err')
-  );
-} catch(e){ alert(e); }
+<button class="tested" onclick="
+try{
+  navigator.geolocation.getCurrentPosition(()=>{},()=>{});
+}catch(e){}
 ">
-📍 Geolocation Permission
+📍 Geolocation Permission（无反应）
 </button>
 
-<!-- 12. Notification permission -->
-<button onclick="
-try {
-  Notification.requestPermission().then(p=>alert(p));
-} catch(e){ alert(e); }
+<button class="tested" onclick="
+try{
+  Notification.requestPermission();
+}catch(e){}
 ">
-🔔 Notification Permission
+🔔 Notification Permission（无反应）
+</button>
+
+<!-- ================= 新/未彻底验证 ================= -->
+
+<h3>🔥 新增 / 你还没彻底验证的（重点在这）</h3>
+
+<!-- blob: click-based -->
+<button class="new" onclick="
+try {
+  var html = `
+    <h1>Blob Page</h1>
+    <button onclick='alert(\"blob alive\")'>TEST</button>
+  `;
+  var b=new Blob([html],{type:'text/html'});
+  var url=URL.createObjectURL(b);
+  var a=document.createElement('a');
+  a.href=url;
+  a.target='_blank';
+  document.body.appendChild(a);
+  a.click();
+} catch(e){}
+">
+🧬 blob: URL（点击触发版）
+</button>
+
+<!-- _blank + delayed write -->
+<button class="new" onclick="
+try{
+  var w=window.open('about:blank','_blank');
+  setTimeout(function(){
+    try{
+      w.document.write('<h1>Injected</h1><button onclick=\"alert(1)\">OK</button>');
+    }catch(e){}
+  },500);
+}catch(e){}
+">
+🕳️ _blank + 延迟 document.write
+</button>
+
+<!-- window.find -->
+<button class="new" onclick="
+try{window.find('a');}catch(e){}
+">
+🔍 window.find()
+</button>
+
+<!-- history abuse -->
+<button class="new" onclick="
+try{
+  history.pushState({},'', '#1');
+  history.pushState({},'', '#2');
+  history.back();
+}catch(e){}
+">
+🌀 history.pushState / back
+</button>
+
+<!-- focus / blur abuse -->
+<button class="new" onclick="
+try{
+  window.onblur=function(){alert('blur')};
+  alert('focus test');
+}catch(e){}
+">
+👁️ focus / blur 探测
+</button>
+
+<!-- window.close -->
+<button class="new" onclick="
+try{window.close();}catch(e){}
+">
+❌ window.close()
+</button>
+
+<!-- alert storm -->
+<button class="new" onclick="
+try{
+  for(let i=0;i<3;i++) alert('test '+i);
+}catch(e){}
+">
+⚠️ alert 连发
+</button>
+
+<!-- beforeunload -->
+<button class="new" onclick="
+try{
+  window.onbeforeunload=function(){return 'leave?'};
+  location.href='https://example.com';
+}catch(e){}
+">
+🚪 beforeunload 钩子
+</button>
+
+<!-- scroll abuse -->
+<button class="new" onclick="
+try{
+  window.scrollTo(0,999999);
+}catch(e){}
+">
+📜 scrollTo 极值
+</button>
+
+<!-- iframe about:blank -->
+<button class="new" onclick="
+try{
+  var f=document.createElement('iframe');
+  f.src='about:blank';
+  f.style.width='100%';
+  f.style.height='300px';
+  document.body.appendChild(f);
+}catch(e){}
+">
+🧩 iframe about:blank
+</button>
+
+<!-- iframe data -->
+<button class="new" onclick="
+try{
+  var f=document.createElement('iframe');
+  f.src='data:text/html,<h1>iframe</h1>';
+  f.style.width='100%';
+  f.style.height='300px';
+  document.body.appendChild(f);
+}catch(e){}
+">
+🧩 iframe data:
+</button>
+
+<!-- noopener -->
+<button class="new" onclick="
+try{
+  var a=document.createElement('a');
+  a.href='https://google.com';
+  a.target='_blank';
+  a.rel='noopener';
+  a.click();
+}catch(e){}
+">
+🔗 _blank + noopener
+</button>
+
+<!-- JS error -->
+<button class="new" onclick="
+throw new Error('test');
+">
+💥 JS Error Throw
 </button>
 
 </body>

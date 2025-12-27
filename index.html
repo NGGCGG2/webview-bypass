@@ -25,6 +25,48 @@
 <body>
 
 <h2>🧱 Primitive WebView Escape (NO JS)</h2>
+
+<!-- ================= HTTP / TLS / 系统错误诱发 ================= -->
+
+<h3>⑧ HTTP / TLS / 系统错误诱发（最后的软件层触发点）</h3>
+
+<p style="font-size:14px;color:#666;">
+目标：利用<strong>证书错误 / TLS 不兼容 / 超大下载</strong><br>
+诱发系统级错误页、网络组件或下载管理器
+</p>
+
+<a href="https://expired.badssl.com/">
+🔐 证书已过期（expired.badssl.com）
+</a>
+
+<a href="https://self-signed.badssl.com/">
+🔐 自签名证书（self-signed.badssl.com）
+</a>
+
+<a href="https://tls-v1-0.badssl.com/">
+🔐 TLS 1.0 不兼容（tls-v1-0.badssl.com）
+</a>
+
+<a href="https://speed.hetzner.de/10GB.bin">
+📦 超大文件下载（10GB.bin）
+</a>
+
+<a href="https://httpstat.us/500">
+⚠️ HTTP 500 错误页
+</a>
+
+<a href="https://httpstat.us/403">
+🚫 HTTP 403 Forbidden
+</a>
+
+<p style="font-size:14px;color:#999;">
+观察点：<br>
+• 是否出现<strong>系统风格</strong>的安全警告或错误页<br>
+• 是否尝试<strong>下载但失败</strong><br>
+• 是否出现<strong>非 WebView 样式</strong>的 UI（哪怕一瞬间）
+</p>
+
+
 <p class="note">
 这是给<strong>不能执行 JS 的原始 WebView</strong>用的。<br>
 目标：诱导系统 handler / viewer / manager 出来。

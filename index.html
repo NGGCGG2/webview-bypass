@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>WebView Console</title>
+<style>
+body { font-size: 28px; padding: 20px; }
+button { font-size: 28px; margin: 20px 0; padding: 20px; width: 100%; }
+</style>
+</head>
+<body>
+
+<h2>WebView Console</h2>
+
+<button onclick="
+var i=document.createElement('input');
+i.type='file';
+i.click();
+">
+📂 File Picker
+</button>
+
+<button onclick="
+location.href='intent:#Intent;action=android.settings.ACCESSIBILITY_SETTINGS;end';
+">
+♿ Accessibility Settings
+</button>
+
+<button onclick="
+location.href='intent:#Intent;component=com.android.settings/.Settings;end';
+">
+⚙️ System Settings
+</button>
+
+</body>
+</html>

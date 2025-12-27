@@ -2,34 +2,132 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>WebView Console</title>
+<title>WebView Escape Console</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body { font-size: 28px; padding: 20px; }
-button { font-size: 28px; margin: 20px 0; padding: 20px; width: 100%; }
+  body { font-family: sans-serif; padding: 20px; }
+  h2 { margin-top: 0; }
+  button {
+    width: 100%;
+    font-size: 22px;
+    padding: 18px;
+    margin: 12px 0;
+  }
+  .warn { color: #b00; font-weight: bold; }
 </style>
 </head>
 <body>
 
-<h2>WebView Console</h2>
+<h2>🧪 WebView Escape Console</h2>
+<p class="warn">所有操作都需要你<strong>手动点击</strong>。点一个，等结果，再点下一个。</p>
 
+<!-- 1. File Picker -->
 <button onclick="
-var i=document.createElement('input');
-i.type='file';
-i.click();
+try {
+  var i = document.createElement('input');
+  i.type = 'file';
+  i.click();
+} catch(e) { alert(e); }
 ">
-📂 File Picker
+📂 File Picker (DocumentsUI)
 </button>
 
+<!-- 2. Accessibility Settings -->
 <button onclick="
 location.href='intent:#Intent;action=android.settings.ACCESSIBILITY_SETTINGS;end';
 ">
 ♿ Accessibility Settings
 </button>
 
+<!-- 3. System Settings -->
 <button onclick="
 location.href='intent:#Intent;component=com.android.settings/.Settings;end';
 ">
 ⚙️ System Settings
+</button>
+
+<!-- 4. App Details (Settings side door) -->
+<button onclick="
+location.href='intent:#Intent;action=android.settings.APPLICATION_DETAILS_SETTINGS;data=package:com.android.systemui;end';
+">
+📦 App Details (SystemUI)
+</button>
+
+<!-- 5. window.print -->
+<button onclick="
+try { window.print(); } catch(e) { alert(e); }
+">
+🖨️ window.print()
+</button>
+
+<!-- 6. target=_blank -->
+<button onclick="
+var a=document.createElement('a');
+a.href='https://google.com';
+a.target='_blank';
+a.click();
+">
+🆕 Open new WebView (_blank)
+</button>
+
+<!-- 7. about:blank + write -->
+<button onclick="
+location.href='about:blank';
+setTimeout(function(){
+  try {
+    document.write('<h1>about:blank alive</h1>');
+  } catch(e){ alert(e); }
+},100);
+">
+🧻 about:blank + document.write
+</button>
+
+<!-- 8. blob: URL -->
+<button onclick="
+try {
+  var b=new Blob(
+    ['<h1>blob page</h1><button onclick=\"alert(1)\">OK</button>'],
+    {type:'text/html'}
+  );
+  location.href=URL.createObjectURL(b);
+} catch(e){ alert(e); }
+">
+🧬 blob: URL
+</button>
+
+<!-- 9. mailto -->
+<button onclick="
+location.href='mailto:test@example.com';
+">
+✉️ mailto:
+</button>
+
+<!-- 10. tel -->
+<button onclick="
+location.href='tel:123';
+">
+📞 tel:
+</button>
+
+<!-- 11. Permission prompt (geolocation) -->
+<button onclick="
+try {
+  navigator.geolocation.getCurrentPosition(
+    ()=>alert('geo ok'),
+    ()=>alert('geo err')
+  );
+} catch(e){ alert(e); }
+">
+📍 Geolocation Permission
+</button>
+
+<!-- 12. Notification permission -->
+<button onclick="
+try {
+  Notification.requestPermission().then(p=>alert(p));
+} catch(e){ alert(e); }
+">
+🔔 Notification Permission
 </button>
 
 </body>

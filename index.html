@@ -2,242 +2,98 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>WebView Escape Console — FULL</title>
+<title>Primitive WebView Escape — NO JS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  body { font-family: sans-serif; padding: 20px; }
+  body { font-family: sans-serif; padding: 18px; }
   h2 { margin-top: 0; }
-  h3 { margin-top: 40px; }
-  button {
-    width: 100%;
-    font-size: 22px;
-    padding: 18px;
+  h3 { margin-top: 28px; }
+  a {
+    display: block;
+    padding: 14px;
     margin: 10px 0;
+    font-size: 18px;
+    background: #f2f2f2;
+    text-decoration: none;
+    color: #000;
+    border-radius: 6px;
   }
-  .tested { opacity: 0.6; }
-  .new { border: 2px solid #d00; }
-  .note { color: #666; font-size: 16px; }
+  .danger { background:#ffe6e6; }
+  .note { color:#666; font-size:14px; }
 </style>
 </head>
 <body>
 
-<h2>🧪 WebView Escape Console · FULL SET</h2>
+<h2>🧱 Primitive WebView Escape (NO JS)</h2>
 <p class="note">
-一次只点一个。点完等 3–5 秒。<br>
-任何“卡一下 / 黑一下 / 不同于隐私政策”的反应都很重要。
+这是给<strong>不能执行 JS 的原始 WebView</strong>用的。<br>
+目标：诱导系统 handler / viewer / manager 出来。
 </p>
 
-<!-- ================= 已测试区域 ================= -->
+<!-- ================= content:// ================= -->
 
-<h3>✅ 已测试（结果已知）</h3>
+<h3>① content://（系统内容提供者）</h3>
+<a href="content://downloads/public_downloads">content://downloads/public_downloads</a>
+<a href="content://downloads/my_downloads">content://downloads/my_downloads</a>
+<a href="content://media/internal">content://media/internal</a>
+<a href="content://media/external">content://media/external</a>
+<a href="content://settings/system">content://settings/system</a>
+<a href="content://com.android.settings">content://com.android.settings</a>
 
-<button class="tested" onclick="
-try {
-  var i=document.createElement('input');
-  i.type='file';
-  i.click();
-} catch(e){}
-">
-📂 File Picker（无反应）
-</button>
+<!-- ================= file:// ================= -->
 
-<button class="tested" onclick="
-try{window.print();}catch(e){}
-">
-🖨️ window.print()（无反应）
-</button>
+<h3>② file://（文件系统）</h3>
+<a href="file:///sdcard/">file:///sdcard/</a>
+<a href="file:///storage/emulated/0/">file:///storage/emulated/0/</a>
+<a href="file:///system/">file:///system/</a>
+<a href="file:///system/etc/">file:///system/etc/</a>
+<a href="file:///proc/version">file:///proc/version</a>
 
-<button class="tested" onclick="
-var a=document.createElement('a');
-a.href='https://google.com';
-a.target='_blank';
-a.click();
-">
-🆕 Open new WebView (_blank → google)
-</button>
+<!-- ================= meta refresh ================= -->
 
-<button class="tested" onclick="
-location.href='about:blank';
-setTimeout(function(){
-  try{document.write('<h1></h1>');}catch(e){}
-},100);
-">
-🧻 about:blank + document.write（白屏）
-</button>
+<h3>③ meta refresh（无 JS 跳转）</h3>
+<a href="data:text/html,<meta http-equiv='refresh' content='0;url=content://downloads/public_downloads'>">
+meta → content://downloads
+</a>
+<a href="data:text/html,<meta http-equiv='refresh' content='0;url=file:///sdcard/'>">
+meta → file:///sdcard
+</a>
 
-<button class="tested" onclick="
-location.href='mailto:test@example.com';
-">
-✉️ mailto:（弹回）
-</button>
+<!-- ================= 协议擦边 ================= -->
 
-<button class="tested" onclick="
-location.href='tel:123';
-">
-📞 tel:（弹回）
-</button>
+<h3>④ 协议擦边（非 intent）</h3>
+<a href="geo:0,0">geo:0,0</a>
+<a href="sms:">sms:</a>
+<a href="smsto:123">smsto:123</a>
+<a href="mailto:test@example.com">mailto:</a>
 
-<button class="tested" onclick="
-try{
-  navigator.geolocation.getCurrentPosition(()=>{},()=>{});
-}catch(e){}
-">
-📍 Geolocation Permission（无反应）
-</button>
+<!-- ================= 下载 / MIME ================= -->
 
-<button class="tested" onclick="
-try{
-  Notification.requestPermission();
-}catch(e){}
-">
-🔔 Notification Permission（无反应）
-</button>
+<h3>⑤ 下载 / MIME 诱导</h3>
+<a href="https://example.com/">example.com（HTML）</a>
+<a href="https://example.com/robots.txt">robots.txt（text/plain）</a>
+<a href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf">
+dummy.pdf（PDF Viewer）
+</a>
 
-<!-- ================= 新/未彻底验证 ================= -->
+<!-- ================= 错误页 ================= -->
 
-<h3>🔥 新增 / 你还没彻底验证的（重点在这）</h3>
+<h3>⑥ 错误 / 非法路径（诱发系统错误 UI）</h3>
+<a class="danger" href="content://nonexistent">content://nonexistent</a>
+<a class="danger" href="file:///nonexistent">file:///nonexistent</a>
 
-<!-- blob: click-based -->
-<button class="new" onclick="
-try {
-  var html = `
-    <h1>Blob Page</h1>
-    <button onclick='alert(\"blob alive\")'>TEST</button>
-  `;
-  var b=new Blob([html],{type:'text/html'});
-  var url=URL.createObjectURL(b);
-  var a=document.createElement('a');
-  a.href=url;
-  a.target='_blank';
-  document.body.appendChild(a);
-  a.click();
-} catch(e){}
-">
-🧬 blob: URL（点击触发版）
-</button>
+<!-- ================= about / blank ================= -->
 
-<!-- _blank + delayed write -->
-<button class="new" onclick="
-try{
-  var w=window.open('about:blank','_blank');
-  setTimeout(function(){
-    try{
-      w.document.write('<h1>Injected</h1><button onclick=\"alert(1)\">OK</button>');
-    }catch(e){}
-  },500);
-}catch(e){}
-">
-🕳️ _blank + 延迟 document.write
-</button>
+<h3>⑦ about: / 内置页</h3>
+<a href="about:blank">about:blank</a>
+<a href="about:version">about:version</a>
 
-<!-- window.find -->
-<button class="new" onclick="
-try{window.find('a');}catch(e){}
-">
-🔍 window.find()
-</button>
-
-<!-- history abuse -->
-<button class="new" onclick="
-try{
-  history.pushState({},'', '#1');
-  history.pushState({},'', '#2');
-  history.back();
-}catch(e){}
-">
-🌀 history.pushState / back
-</button>
-
-<!-- focus / blur abuse -->
-<button class="new" onclick="
-try{
-  window.onblur=function(){alert('blur')};
-  alert('focus test');
-}catch(e){}
-">
-👁️ focus / blur 探测
-</button>
-
-<!-- window.close -->
-<button class="new" onclick="
-try{window.close();}catch(e){}
-">
-❌ window.close()
-</button>
-
-<!-- alert storm -->
-<button class="new" onclick="
-try{
-  for(let i=0;i<3;i++) alert('test '+i);
-}catch(e){}
-">
-⚠️ alert 连发
-</button>
-
-<!-- beforeunload -->
-<button class="new" onclick="
-try{
-  window.onbeforeunload=function(){return 'leave?'};
-  location.href='https://example.com';
-}catch(e){}
-">
-🚪 beforeunload 钩子
-</button>
-
-<!-- scroll abuse -->
-<button class="new" onclick="
-try{
-  window.scrollTo(0,999999);
-}catch(e){}
-">
-📜 scrollTo 极值
-</button>
-
-<!-- iframe about:blank -->
-<button class="new" onclick="
-try{
-  var f=document.createElement('iframe');
-  f.src='about:blank';
-  f.style.width='100%';
-  f.style.height='300px';
-  document.body.appendChild(f);
-}catch(e){}
-">
-🧩 iframe about:blank
-</button>
-
-<!-- iframe data -->
-<button class="new" onclick="
-try{
-  var f=document.createElement('iframe');
-  f.src='data:text/html,<h1>iframe</h1>';
-  f.style.width='100%';
-  f.style.height='300px';
-  document.body.appendChild(f);
-}catch(e){}
-">
-🧩 iframe data:
-</button>
-
-<!-- noopener -->
-<button class="new" onclick="
-try{
-  var a=document.createElement('a');
-  a.href='https://google.com';
-  a.target='_blank';
-  a.rel='noopener';
-  a.click();
-}catch(e){}
-">
-🔗 _blank + noopener
-</button>
-
-<!-- JS error -->
-<button class="new" onclick="
-throw new Error('test');
-">
-💥 JS Error Throw
-</button>
+<p class="note">
+判定标准：<br>
+• 弹出<strong>下载管理器 / PDF 查看器 / 文件选择器</strong> = 有戏<br>
+• 屏幕<strong>卡顿 / 黑一下 / 样式变化</strong> = 记下来<br>
+• 立刻回到原页面 = 被拦
+</p>
 
 </body>
 </html>
